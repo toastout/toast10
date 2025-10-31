@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍳 채팅 검토기</title>
+    <style>
+        @font-face {
+            font-family: 'Ridibatang';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.0/RIDIBatang.woff') format('woff');
+            font-weight: normal;
+            font-display: swap;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* 🍞 노릇노릇 토스트 (라이트모드) */
+            --bg-primary: #faf8f3;
+            --bg-secondary: #fff9ed;
+            --bg-tertiary: #f5ead8;
+            --text-primary: #3d3226;
+            --text-secondary: #7a6f5d;
+            --accent: #d4896a;
+            --accent-hover: #c17558;
+            --border: #e8dcc4;
+            --highlight: #e67e22;
+            --highlight-bg: rgba(230, 126, 34, 0.12);
+            --freq-100: #e74c3c;
+            --freq-50: #e67e22;
+            --freq-25: #f39c12;
+            --freq-10: #27ae60;
+            --freq-2: #3498db;
+        }
+
+        body.dark-mode {
+            /* 🔥 타버린 토스트 (다크모드) */
+            --bg-primary: #1a1612;
+            --bg-secondary: #2a2218;
+            --bg-tertiary: #3d3026;
+            --text-primary: #e8dcc4;
+            --text-secondary: #a89476;
+            --accent: #d4896a;
+            --accent-hover: #e09b7c;
+            --border: #4a3f2f;
+            --highlight: #ff9a56;
+            --highlight-bg: rgba(255, 154, 86, 0.15);
+            --freq-100: #ff6b6b;
+            --freq-50: #ff922b;
+            --freq-25: #ffd43b;
+            --freq-10: #51cf66;
+            --freq-2: #74c0fc;
+        }
+
+        body {
+            font-family: 'Ridibatang', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .header-icons {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .icon-btn:hover {
+            border-color: var(--accent);
+            transform: scale(1.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .upload-section {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px dashed var(--border);
+            transition: border-color 0.3s;
+        }
+
+        .upload-section:hover {
+            border-color: var(--accent);
+        }
+
+        .file-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        input[type="file"] {
+            padding: 12px 20px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        input[type="file"]::file-selector-button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-weight: 600;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background: var(--accent-hover);
+        }
+
+        /* 중복 표현 섹션 */
+        .duplicates {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .duplicates.active {
+            display: block;
+        }
+
+        .duplicates-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .duplicates-header h3 {
+            color: var(--accent);
+        }
+
+        .freq-filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .freq-filter-btn {
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .freq-filter-btn:hover {
+            border-color: var(--accent);
+        }
+
+        .freq-filter-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .duplicate-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .duplicate-item {
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .duplicate-item:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .duplicate-item.highlighted {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .duplicate-count {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            margin-left: 5px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .freq-100 { background: var(--freq-100); }
+        .freq-50 { background: var(--freq-50); }
+        .freq-25 { background: var(--freq-25); }
+        .freq-10 { background: var(--freq-10); }
+        .freq-2 { background: var(--freq-2); }
+
+        .controls {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .controls.active {
+            display: block;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .search-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .search-btn, .clear-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .search-btn {
+            background: var(--accent);
+            color: white;
+        }
+
+        .search-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .clear-btn {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+        }
+
+        .clear-btn:hover {
+            border-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        .search-result {
+            margin-top: 10px;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .speaker-filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .speaker-btn {
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .speaker-btn:hover {
+            border-color: var(--accent);
+        }
+
+        .speaker-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .stats {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .stats.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: var(--bg-tertiary);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .messages {
+            display: none;
+        }
+
+        .messages.active {
+            display: block;
+        }
+
+        .message {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .message.hidden {
+            display: none;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .message-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .message-index {
+            background: var(--accent);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .speaker-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--accent);
+        }
+
+        .message-time {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .message-content {
+            color: var(--text-primary);
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+
+        .highlight {
+            background: var(--highlight-bg);
+            color: var(--highlight);
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .header-icons {
+                position: static;
+                justify-content: center;
+                margin-bottom: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .speaker-filters, .freq-filters {
+                justify-content: center;
+            }
+
+            .search-wrapper {
+                flex-direction: column;
+            }
+
+            .search-btn, .clear-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-icons">
+                <a href="https://toastout.github.io/toast/" class="icon-btn" title="홈으로">🍞</a>
+                <div class="icon-btn" id="themeBtn" title="다크모드 토글">🌙</div>
+            </div>
+            <h1>🍳 채팅 검토기</h1>
+            <p class="subtitle">중복 표현 찾기 & 발화 분석 (한국어 전용)</p>
+        </header>
+
+        <div class="upload-section">
+            <div class="file-input-wrapper">
+                <input type="file" id="fileInput" accept=".txt" />
+            </div>
+        </div>
+
+        <div class="duplicates" id="duplicates">
+            <div class="duplicates-header">
+                <h3>🔁 중복 표현 (2회 이상)</h3>
+                <div class="freq-filters" id="freqFilters">
+                    <button class="freq-filter-btn active" data-freq="0">전체</button>
+                    <button class="freq-filter-btn" data-freq="50">50회↑</button>
+                    <button class="freq-filter-btn" data-freq="25">25회↑</button>
+                    <button class="freq-filter-btn" data-freq="10">10회↑</button>
+                    <button class="freq-filter-btn" data-freq="2">2회↑</button>
+                </div>
+            </div>
+            <div class="duplicate-list" id="duplicateList"></div>
+        </div>
+
+        <div class="controls" id="controls">
+            <div class="control-group">
+                <label for="searchInput">🔍 중복 표현 검색</label>
+                <div class="search-wrapper">
+                    <input type="text" id="searchInput" placeholder="검색할 단어나 표현을 입력하세요..." />
+                    <button class="search-btn" id="searchBtn">🔍 검색</button>
+                    <button class="clear-btn" id="clearBtn">❌ 초기화</button>
+                </div>
+                <div class="search-result" id="searchResult"></div>
+            </div>
+
+            <div class="control-group">
+                <label>👥 발화자 필터</label>
+                <div class="speaker-filters" id="speakerFilters"></div>
+            </div>
+        </div>
+
+        <div class="stats" id="stats">
+            <div class="stats-grid" id="statsGrid"></div>
+        </div>
+
+        <div class="messages" id="messages"></div>
+    </div>
+
+    <script>
+        let chatData = [];
+        let currentSearch = '';
+        let activeSpeakers = new Set();
+        let allText = '';
+        let allDuplicates = [];
+        let currentFreqFilter = 0;
+
+        const fileInput = document.getElementById('fileInput');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const searchResult = document.getElementById('searchResult');
+        const controls = document.getElementById('controls');
+        const stats = document.getElementById('stats');
+        const statsGrid = document.getElementById('statsGrid');
+        const speakerFilters = document.getElementById('speakerFilters');
+        const messagesContainer = document.getElementById('messages');
+        const duplicatesSection = document.getElementById('duplicates');
+        const duplicateList = document.getElementById('duplicateList');
+        const freqFilters = document.getElementById('freqFilters');
+        const themeBtn = document.getElementById('themeBtn');
+
+        fileInput.addEventListener('change', handleFileUpload);
+        
+        searchBtn.addEventListener('click', () => {
+            currentSearch = searchInput.value.trim();
+            renderMessages();
+            updateSearchResult();
+            highlightDuplicateItem();
+        });
+
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchBtn.click();
+            }
+        });
+
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            currentSearch = '';
+            renderMessages();
+            searchResult.innerHTML = '';
+            clearDuplicateHighlight();
+        });
+
+        // 다크모드 토글
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            themeBtn.textContent = isDark ? '☀️' : '🌙';
+            localStorage.setItem('chatReviewer_darkMode', isDark);
+        });
+
+        // 페이지 로드 시 다크모드 설정 복원
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedDarkMode = localStorage.getItem('chatReviewer_darkMode') === 'true';
+            if (savedDarkMode) {
+                document.body.classList.add('dark-mode');
+                themeBtn.textContent = '☀️';
+            }
+        });
+
+        // 빈도 필터 버튼
+        freqFilters.addEventListener('click', (e) => {
+            if (e.target.classList.contains('freq-filter-btn')) {
+                document.querySelectorAll('.freq-filter-btn').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                currentFreqFilter = parseInt(e.target.dataset.freq);
+                renderDuplicates();
+            }
+        });
+
+        function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const content = event.target.result;
+                parseChat(content);
+            };
+            reader.readAsText(file);
+        }
+
+        function parseChat(content) {
+            chatData = [];
+            allText = '';
+            const lines = content.split('\n');
+            let currentMessage = null;
+            let inCodeBlock = false;
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+
+                // 코드 블록 시작/끝 감지
+                if (line.startsWith('```')) {
+                    inCodeBlock = !inCodeBlock;
+                    if (currentMessage) {
+                        currentMessage.content += (currentMessage.content ? '\n' : '') + line;
+                    }
+                    continue;
+                }
+
+                // 코드 블록 내부라면 발화자로 인식하지 않음
+                if (inCodeBlock) {
+                    if (currentMessage) {
+                        currentMessage.content += (currentMessage.content ? '\n' : '') + line;
+                    }
+                    continue;
+                }
+
+                // 발화자 감지 (--발화자)
+                if (line.startsWith('--')) {
+                    if (currentMessage) {
+                        chatData.push(currentMessage);
+                    }
+                    currentMessage = {
+                        speaker: line.substring(2).trim(),
+                        content: '',
+                        time: null
+                    };
+                }
+                // TimeInfo 감지
+                else if (line.includes('## TimeInfo')) {
+                    const timeMatch = line.match(/Time:\s*([^|]+)/);
+                    if (timeMatch && currentMessage) {
+                        currentMessage.time = timeMatch[1].trim();
+                    }
+                }
+                // 내용 추가
+                else if (currentMessage && line && !line.startsWith('#')) {
+                    currentMessage.content += (currentMessage.content ? '\n' : '') + line;
+                }
+            }
+
+            if (currentMessage) {
+                chatData.push(currentMessage);
+            }
+
+            // 첫 메시지 자동 제거
+            if (chatData.length > 0) {
+                chatData.shift();
+            }
+
+            // 전체 텍스트 결합 (TimeInfo 제외)
+            allText = chatData.map(m => {
+                // TimeInfo 패턴 제거
+                return m.content.replace(/\[Time:.*?\]/g, '');
+            }).join(' ');
+
+            findDuplicates();
+            initializeFilters();
+            updateStats();
+            renderMessages();
+            
+            duplicatesSection.classList.add('active');
+            controls.classList.add('active');
+            stats.classList.add('active');
+            messagesContainer.classList.add('active');
+        }
+
+        function findDuplicates() {
+            const wordCounts = {};
+            const phraseCounts = {};
+
+            // 1. 한글 단어만 추출 (2글자 이상)
+            const words = allText.match(/[\uAC00-\uD7A3]{2,}/g) || [];
+            words.forEach(word => {
+                wordCounts[word] = (wordCounts[word] || 0) + 1;
+            });
+
+            // 2. 한글 구절 추출 (3~6단어)
+            const sentences = allText.split(/[.!?\n]/);
+            sentences.forEach(sentence => {
+                // 한글만 포함된 문장만 처리
+                const koreanOnly = sentence.replace(/[^\uAC00-\uD7A3\s]/g, ' ');
+                const sentenceWords = koreanOnly.trim().split(/\s+/).filter(w => w.length > 0);
+                
+                for (let len = 3; len <= 6; len++) {
+                    for (let i = 0; i <= sentenceWords.length - len; i++) {
+                        const phrase = sentenceWords.slice(i, i + len).join(' ');
+                        if (phrase.length > 5) {
+                            phraseCounts[phrase] = (phraseCounts[phrase] || 0) + 1;
+                        }
+                    }
+                }
+            });
+
+            // 3. 2회 이상 등장한 것만 필터링
+            allDuplicates = [];
+            
+            Object.entries(wordCounts).forEach(([word, count]) => {
+                if (count >= 2) {
+                    allDuplicates.push({ text: word, count });
+                }
+            });
+
+            Object.entries(phraseCounts).forEach(([phrase, count]) => {
+                if (count >= 2) {
+                    allDuplicates.push({ text: phrase, count });
+                }
+            });
+
+            // 4. 빈도순 정렬
+            allDuplicates.sort((a, b) => b.count - a.count);
+
+            renderDuplicates();
+        }
+
+        function renderDuplicates() {
+            const filtered = allDuplicates.filter(item => item.count >= currentFreqFilter);
+
+            duplicateList.innerHTML = '';
+            filtered.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'duplicate-item';
+                div.dataset.text = item.text;
+                
+                let freqClass = 'freq-2';
+                if (item.count >= 100) freqClass = 'freq-100';
+                else if (item.count >= 50) freqClass = 'freq-50';
+                else if (item.count >= 25) freqClass = 'freq-25';
+                else if (item.count >= 10) freqClass = 'freq-10';
+
+                div.innerHTML = `${item.text} <span class="duplicate-count ${freqClass}">${item.count}</span>`;
+                div.onclick = () => {
+                    searchInput.value = item.text;
+                    currentSearch = item.text;
+                    renderMessages();
+                    updateSearchResult();
+                    highlightDuplicateItem();
+                    searchInput.scrollIntoView({ behavior: 'smooth' });
+                };
+                duplicateList.appendChild(div);
+            });
+        }
+
+        function highlightDuplicateItem() {
+            clearDuplicateHighlight();
+            if (currentSearch) {
+                const items = document.querySelectorAll('.duplicate-item');
+                items.forEach(item => {
+                    if (item.dataset.text === currentSearch) {
+                        item.classList.add('highlighted');
+                    }
+                });
+            }
+        }
+
+        function clearDuplicateHighlight() {
+            document.querySelectorAll('.duplicate-item').forEach(item => {
+                item.classList.remove('highlighted');
+            });
+        }
+
+        function updateSearchResult() {
+            if (!currentSearch) {
+                searchResult.innerHTML = '';
+                return;
+            }
+
+            const totalMessages = chatData.length;
+            const matchedMessages = chatData.filter(msg => {
+                if (!activeSpeakers.has(msg.speaker)) return false;
+                return msg.content.toLowerCase().includes(currentSearch.toLowerCase());
+            }).length;
+
+            searchResult.innerHTML = `💡 "${currentSearch}" 포함 발화: <strong>${matchedMessages}개</strong> / 전체 ${totalMessages}개`;
+        }
+
+        function initializeFilters() {
+            const speakers = [...new Set(chatData.map(m => m.speaker))];
+            activeSpeakers = new Set(speakers);
+
+            speakerFilters.innerHTML = '';
+            speakers.forEach(speaker => {
+                const btn = document.createElement('button');
+                btn.className = 'speaker-btn active';
+                btn.textContent = speaker;
+                btn.onclick = () => toggleSpeaker(speaker, btn);
+                speakerFilters.appendChild(btn);
+            });
+        }
+
+        function toggleSpeaker(speaker, btn) {
+            if (activeSpeakers.has(speaker)) {
+                activeSpeakers.delete(speaker);
+                btn.classList.remove('active');
+            } else {
+                activeSpeakers.add(speaker);
+                btn.classList.add('active');
+            }
+            renderMessages();
+            updateSearchResult();
+        }
+
+        function updateStats() {
+            const speakerStats = {};
+            
+            chatData.forEach(msg => {
+                if (!speakerStats[msg.speaker]) {
+                    speakerStats[msg.speaker] = {
+                        count: 0,
+                        chars: 0
+                    };
+                }
+                speakerStats[msg.speaker].count++;
+                speakerStats[msg.speaker].chars += msg.content.length;
+            });
+
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${chatData.length}</div>
+                    <div class="stat-label">전체 발화</div>
+                </div>
+            `;
+
+            Object.entries(speakerStats).forEach(([speaker, data]) => {
+                statsGrid.innerHTML += `
+                    <div class="stat-card">
+                        <div class="stat-value">${data.count}</div>
+                        <div class="stat-label">${speaker} 발화</div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderMessages() {
+            let filtered = chatData.filter(msg => activeSpeakers.has(msg.speaker));
+
+            // 검색어가 있으면 해당 발화만 표시
+            if (currentSearch) {
+                filtered = filtered.filter(msg => 
+                    msg.content.toLowerCase().includes(currentSearch.toLowerCase())
+                );
+            }
+
+            if (filtered.length === 0) {
+                messagesContainer.innerHTML = '<div class="no-results">표시할 메시지가 없습니다.</div>';
+                return;
+            }
+
+            messagesContainer.innerHTML = filtered.map((msg) => {
+                let content = msg.content;
+                
+                if (currentSearch) {
+                    const regex = new RegExp(`(${escapeRegex(currentSearch)})`, 'gi');
+                    content = content.replace(regex, '<span class="highlight">$1</span>');
+                }
+
+                // 원본 데이터에서의 인덱스 찾기
+                const originalIndex = chatData.indexOf(msg);
+
+                return `
+                    <div class="message">
+                        <div class="message-header">
+                            <div class="message-header-left">
+                                <span class="message-index">#${originalIndex}</span>
+                                <span class="speaker-name">${msg.speaker}</span>
+                            </div>
+                            ${msg.time ? `<span class="message-time">${msg.time}</span>` : ''}
+                        </div>
+                        <div class="message-content">${content}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function escapeRegex(str) {
+            return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+    </script>
+</body>
+</html>
